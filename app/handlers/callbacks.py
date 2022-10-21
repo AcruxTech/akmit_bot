@@ -8,7 +8,7 @@ from app.states.MyState import MyState
 
 
 async def call_cancel(call: types.CallbackQuery, state: FSMContext):
-    await call.message.answer("Команда отменена")
+    await call.message.answer('Команда отменена')
     await state.finish()
     await call.answer()
 
@@ -20,5 +20,5 @@ async def call_some(call: types.CallbackQuery, state: FSMContext):
 
 
 def register_callback_handlers(dp: Dispatcher):
-    dp.register_callback_query_handler(call_cancel, text="cancel", state="*")
+    dp.register_callback_query_handler(call_cancel, text='cancel', state='*')
     dp.register_message_handler(call_some, state=MyState.a)
