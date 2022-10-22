@@ -37,3 +37,5 @@ def load_config():
             name=os.getenv('DB_NAME')
         )
     )
+
+

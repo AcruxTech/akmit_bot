@@ -1,10 +1,10 @@
 from sqlalchemy import Column, ForeignKey, Integer, BigInteger, Text
 from db.base import Base
+from db.models.model import Model
 
-
-class User(Base):
+class User(Base, Model):
+    
     __tablename__ = 'users'
     
-    id = Column(BigInteger(), primary_key=True)
     name = Column(Text())
     classId = Column(Integer(), ForeignKey('groups.id'))

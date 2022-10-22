@@ -8,12 +8,13 @@ from aiogram.types import BotCommand
 from app.config.config import load_config 
 from app.handlers.common import register_common_handlers
 from app.handlers.callbacks import register_callback_handlers
+
 from db.worker import Worker
 
 
 logger = logging.getLogger(__name__)
 config = load_config()
-worker = Worker(config.db)
+worker = Worker(config.db.__dict__)
 
 
 async def set_commands(bot: Bot):

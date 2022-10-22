@@ -1,12 +1,13 @@
-from sqlalchemy import Column, ForeignKey, Integer, Text
+from sqlalchemy import Column, ForeignKey, BigInteger, Text
+
 from db.base import Base
+from db.models.model import Model
 
 
-class Lesson(Base):
+class Lesson(Base, Model):
 
     __tablename__ = 'lessons'
     
-    id = Column(Integer(), primary_key=True)
     name = Column(Text())
     pavilion = Column(Text())
-    dayId = Column(Integer(), ForeignKey('days.id'))
+    dayId = Column(BigInteger, ForeignKey('days.id'))

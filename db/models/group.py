@@ -1,13 +1,13 @@
-from sqlalchemy import Column, Integer, Text
+from sqlalchemy import Column, Text
 from sqlalchemy.orm import relationship
+
 from db.base import Base 
+from db.models.model import Model
 
-
-class Group(Base):
+class Group(Base, Model):
 
     __tablename__ = 'groups'
     
-    id = Column(Integer(), primary_key=True)
     uuid = Column(Text())
     title = Column(Text())
     secretCode = Column(Text())
