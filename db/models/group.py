@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship
 from db.base import Base 
 from db.models.model import Model
 
+
 class Group(Base, Model):
 
     __tablename__ = 'groups'

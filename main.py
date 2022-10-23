@@ -14,7 +14,7 @@ from db.worker import Worker
 
 logger = logging.getLogger(__name__)
 config = load_config()
-worker = Worker(config.db.__dict__)
+worker = Worker(config.db.__dict__, logger)
 
 
 async def set_commands(bot: Bot):
@@ -29,7 +29,7 @@ async def set_commands(bot: Bot):
 async def main():
     # Настройка логирования в stdout
     logging.basicConfig(
-        filename='log.txt',
+        filename='bot.log',
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
     )
@@ -38,21 +38,21 @@ async def main():
     # Создание таблиц
     worker.create_all()
 
-    # # Объявление и инициализация объектов бота и диспетчера
-    # bot = Bot(token=config.tg_bot.token)
-    # print((await bot.get_me()).username)
-    # storage = MemoryStorage()
-    # dp = Dispatcher(bot, storage=storage)
+    # Объявление и инициализация объектов бота и диспетчера
+    bot = Bot(token=config.tg_bot.token)
+    print((await bot.get_me()).username)
+    storage = MemoryStorage()
+    dp = Dispatcher(bot, storage=storage)
 
-    # # Регистрация хэндлеров
-    # register_common_handlers(dp)   
-    # register_callback_handlers(dp)  
+    # Регистрация хэндлеров
+    register_common_handlers(dp)   
+    register_callback_handlers(dp)  
 
-    # # Установка команд бота     
-    # await set_commands(bot) 
+    # Установка команд бота     
+    await set_commands(bot) 
 
-    # # Запуск поллинга                    
-    # await dp.start_polling()                    
+    # Запуск поллинга                    
+    await dp.start_polling()                    
 
 
 if __name__ == '__main__':

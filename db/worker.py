@@ -1,5 +1,5 @@
+from logging import Logger
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
 
 from db.base import Base
 import db.models.user, db.models.group, db.models.day, db.models.lesson
@@ -7,20 +7,22 @@ import db.models.user, db.models.group, db.models.day, db.models.lesson
 
 class Worker():
 
-    def __init__(self, config: dict):
-        self.db = config
-        self.engine = create_engine(
-            f'postgresql+psycopg2://{self.db["user"]}:{self.db["password"]}@{self.db["addr"]}/{self.db["name"]}'
+    def __init__(self, config: dict, logger: Logger = None):
+        self._db = config
+        self._engine = create_engine(
+            f'''postgresql+psycopg2://{self._db["user"]}:{self._db["password"]}@{self._db["addr"]}/{self._db["name"]}'''
         )
-        self.engine.connect()
-        print('ok create engine')
+        self._engine.connect()
+        self._logger = logger
+        print(f'Create engine for {self._db["name"]}')
+        self._logger.info(f'Create engine for {self._db["name"]}')
 
 
     def create_all(self):
-        Base.metadata.create_all(self.engine)
-        print('Database is initialized')
+        Base.metadata.create_all(self._engine)
+        self._logger.info(f'All tables of {self._db["name"]} created')
 
 
     def drop_all(self):
-        Base.metadata.drop_all(self.engine)
-        print('Database is droped')
+        Base.metadata.drop_all(self._engine)
+        self._logger.info(f'All tables of {self._db["name"]} dropped')
