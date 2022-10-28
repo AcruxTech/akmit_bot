@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Text
+from uuid import uuid4
+
+from sqlalchemy import Integer, Column, Text, ForeignKey
 from sqlalchemy.orm import relationship
 
 from db.base import Base 
@@ -13,5 +15,5 @@ class Group(Base, Model):
     title = Column(Text())
     secretCode = Column(Text())
 
-    user = relationship('users')
-    day = relationship('days')
+
+default_group = Group(uuid = uuid4(), title = 'default', secretCode = 100)

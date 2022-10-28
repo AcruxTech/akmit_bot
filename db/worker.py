@@ -1,5 +1,7 @@
 from logging import Logger
 from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.engine import Engine
 
 from db.base import Base
 import db.models.user, db.models.group, db.models.day, db.models.lesson
@@ -13,9 +15,18 @@ class Worker():
             f'''postgresql+psycopg2://{self._db["user"]}:{self._db["password"]}@{self._db["addr"]}/{self._db["name"]}'''
         )
         self._engine.connect()
+        self._session = sessionmaker(self._engine)
         self._logger = logger
         print(f'Create engine for {self._db["name"]}')
         self._logger.info(f'Create engine for {self._db["name"]}')
+
+    
+    def get_engine(self) -> Engine:
+        return self._engine
+
+
+    def get_session(self) -> Session:
+        return self._session
 
 
     def create_all(self):

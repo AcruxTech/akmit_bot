@@ -40,6 +40,7 @@ async def main():
 
     # Объявление и инициализация объектов бота и диспетчера
     bot = Bot(token=config.tg_bot.token)
+    bot['db'] = worker.get_session()
     print((await bot.get_me()).username)
     storage = MemoryStorage()
     dp = Dispatcher(bot, storage=storage)

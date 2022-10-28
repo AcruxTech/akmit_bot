@@ -1,4 +1,5 @@
-from sqlalchemy import Column, ForeignKey, BigInteger, Text
+from sqlalchemy import Column, ForeignKey, BigInteger, Text, Integer
+from sqlalchemy.orm import relationship
 
 from db.base import Base
 from db.models.model import Model
@@ -10,4 +11,4 @@ class Lesson(Base, Model):
     
     name = Column(Text())
     pavilion = Column(Text())
-    dayId = Column(BigInteger, ForeignKey('days.id'))
+    day = Column(BigInteger, ForeignKey('days.id'))

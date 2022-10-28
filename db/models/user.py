@@ -9,4 +9,4 @@ class User(Base, Model):
     __tablename__ = 'users'
     
     name = Column(Text())
-    classId = Column(Integer(), ForeignKey('groups.id'))
+    group_id = Column(Integer(), ForeignKey('groups.id'))

@@ -11,6 +11,4 @@ class Day(Base, Model):
     
     name = Column(Text())
     pavilion = Column(Text())
-    lesson = relationship('lessons')
-
-    classId = Column(BigInteger(), ForeignKey('groups.id'))
+    group_id = Column(BigInteger(), ForeignKey('groups.id'))

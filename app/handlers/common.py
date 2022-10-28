@@ -2,9 +2,16 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
 from app.utils.keyboards import get_start_keyboard
+from db.models.user import User
+from db.models.group import default_group
 
 
 async def start(message: types.Message):
+    session = message.bot.get('db')
+
+    with session.begin() as session:
+        new_user = User(name = message.forward_sender_name, group_id = default_group.id)
+        session.add(new_user)
     await message.answer('start', reply_markup=get_start_keyboard())
 
 
