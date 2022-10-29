@@ -1,3 +1,4 @@
+import os
 import asyncio
 import logging
 
@@ -5,16 +6,9 @@ from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.types import BotCommand
 
-from app.config.config import load_config 
-from app.handlers.common import register_common_handlers
+from common import worker, logger, config
+from app.handlers.commands import register_common_handlers
 from app.handlers.callbacks import register_callback_handlers
-
-from db.worker import Worker
-
-
-logger = logging.getLogger(__name__)
-config = load_config()
-worker = Worker(config.db.__dict__, logger)
 
 
 async def set_commands(bot: Bot):
@@ -27,11 +21,16 @@ async def set_commands(bot: Bot):
 
 
 async def main():
+    # Удаляем старые логи, если они есть
+    if(os.path.isfile('bot.log')):
+        os.remove('bot.log')
+
     # Настройка логирования в stdout
     logging.basicConfig(
         filename='bot.log',
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
+        encoding='utf-8'
     )
     logger.info('Starting bot')
 
@@ -40,7 +39,6 @@ async def main():
 
     # Объявление и инициализация объектов бота и диспетчера
     bot = Bot(token=config.tg_bot.token)
-    bot['db'] = worker.get_session()
     print((await bot.get_me()).username)
     storage = MemoryStorage()
     dp = Dispatcher(bot, storage=storage)

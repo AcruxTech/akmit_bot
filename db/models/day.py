@@ -1,14 +1,13 @@
 from sqlalchemy import Column, ForeignKey, BigInteger, Text
-from sqlalchemy.orm import relationship
 
 from db.base import Base
-from db.models.model import Model
 
 
-class Day(Base, Model):
+class Day(Base):
 
     __tablename__ = 'days'
     
+    id = Column(BigInteger(), primary_key=True)
     name = Column(Text())
     pavilion = Column(Text())
     group_id = Column(BigInteger(), ForeignKey('groups.id'))

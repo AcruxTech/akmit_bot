@@ -15,7 +15,6 @@ class Worker():
             f'''postgresql+psycopg2://{self._db["user"]}:{self._db["password"]}@{self._db["addr"]}/{self._db["name"]}'''
         )
         self._engine.connect()
-        self._session = sessionmaker(self._engine)
         self._logger = logger
         print(f'Create engine for {self._db["name"]}')
         self._logger.info(f'Create engine for {self._db["name"]}')
@@ -25,10 +24,6 @@ class Worker():
         return self._engine
 
 
-    def get_session(self) -> Session:
-        return self._session
-
-
     def create_all(self):
         Base.metadata.create_all(self._engine)
         self._logger.info(f'All tables of {self._db["name"]} created')
@@ -36,4 +31,5 @@ class Worker():
 
     def drop_all(self):
         Base.metadata.drop_all(self._engine)
+        Base.metadata.create_all(self._engine)
         self._logger.info(f'All tables of {self._db["name"]} dropped')

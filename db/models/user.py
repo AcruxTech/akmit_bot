@@ -1,12 +1,18 @@
 from sqlalchemy import Column, ForeignKey, Integer, BigInteger, Text
 
 from db.base import Base
-from db.models.model import Model
 
 
-class User(Base, Model):
+class User(Base):
     
     __tablename__ = 'users'
     
+    id = Column(BigInteger(), primary_key=True)
+    # telegram unique id - int!
+    uuid = Column(BigInteger())
     name = Column(Text())
     group_id = Column(Integer(), ForeignKey('groups.id'))
+
+    
+    def __repr__(self):
+        return f'User({self.id}, {self.uuid}, {self.name}, {self.group_id})'

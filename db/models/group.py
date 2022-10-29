@@ -1,19 +1,18 @@
 from uuid import uuid4
 
-from sqlalchemy import Integer, Column, Text, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, BigInteger, Text
 
 from db.base import Base 
-from db.models.model import Model
 
 
-class Group(Base, Model):
+class Group(Base):
 
     __tablename__ = 'groups'
     
+    id = Column(BigInteger(), primary_key=True)
     uuid = Column(Text())
     title = Column(Text())
     secretCode = Column(Text())
 
 
-default_group = Group(uuid = uuid4(), title = 'default', secretCode = 100)
+default_group = Group(id = 1, uuid = uuid4(), title = 'default', secretCode = 100)
