@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 
 from app.utils.keyboards import get_start_keyboard
 from db.models.user import User
-from db.models.group import default_group
 
 # !
 from common import worker, engine
@@ -12,11 +11,8 @@ from common import worker, engine
 async def start(message: types.Message):
     with Session(bind=engine) as s:
         me = s.query(User).filter_by(uuid=message.from_user.id).first()
-        print(me)   
         if me is None:
-            print('add')
-            new_user = User(uuid=message.from_user.id, name = message.from_user.first_name, group_id = default_group.id)
-            print(new_user)
+            new_user = User(uuid=message.from_user.id, name = message.from_user.first_name)
             s.add(new_user)
             s.commit()
 
@@ -34,8 +30,8 @@ async def cmd_cancel(message: types.Message, state: FSMContext):
 
 # !
 async def clean(message: types.Message):
-    print('db was cleaned')
     worker.drop_all()
+    await message.answer('db was cleaned')
 
 
 def register_common_handlers(dp: Dispatcher):

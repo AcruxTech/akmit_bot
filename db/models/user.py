@@ -11,7 +11,7 @@ class User(Base):
     # telegram unique id - int!
     uuid = Column(BigInteger())
     name = Column(Text())
-    group_id = Column(Integer(), ForeignKey('groups.id'))
+    group_id = Column(Integer(), ForeignKey('groups.id'), nullable=True)
 
     
     def __repr__(self):
