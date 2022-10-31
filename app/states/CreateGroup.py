@@ -1,6 +1,5 @@
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 
-class MyState(StatesGroup):
-    a = State()
-    b = State()
+class CreateGroup(StatesGroup):
+    enter_title = State()

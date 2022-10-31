@@ -4,7 +4,7 @@ from aiogram.dispatcher import FSMContext
 
 from app.utils.keyboards import get_cancel_keyboard
 from app.utils.functions import some_func
-from app.states.MyState import MyState
+from app.states.CreateGroup import CreateGroup
 
 
 async def call_cancel(call: types.CallbackQuery, state: FSMContext):
@@ -21,4 +21,4 @@ async def call_some(call: types.CallbackQuery, state: FSMContext):
 
 def register_callback_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(call_cancel, text='cancel', state='*')
-    dp.register_message_handler(call_some, state=MyState.a)
+    dp.register_message_handler(call_some, state=CreateGroup.enter_title)

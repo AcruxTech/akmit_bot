@@ -8,8 +8,7 @@ class User(Base):
     __tablename__ = 'users'
     
     id = Column(BigInteger(), primary_key=True)
-    # telegram unique id - int!
-    uuid = Column(BigInteger())
+    uuid = Column(BigInteger())             # telegram unique id: int
     name = Column(Text())
     group_id = Column(Integer(), ForeignKey('groups.id'), nullable=True)
 
