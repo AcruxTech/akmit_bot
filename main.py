@@ -16,6 +16,7 @@ async def set_commands(bot: Bot):
         BotCommand(command='/start', description='Начать работу'),
         BotCommand(command='/create_group', description='Создать группу'),
         BotCommand(command='/invite', description='Пригласить новых участников'),
+        BotCommand(command='/add', description='Добавить задание'),
         BotCommand(command='/help', description='Доступные команды'),
         BotCommand(command='/cancel', description='Отменить команду')
     ]

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.engine import Engine
 
 from db.base import Base
-import db.models.user, db.models.group, db.models.day, db.models.lesson
+import db.models.user, db.models.group, db.models.lesson
 
 
 class Worker():

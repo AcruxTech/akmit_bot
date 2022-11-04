@@ -5,7 +5,7 @@ from aiogram.utils.deep_linking import get_start_link, decode_payload
 from sqlalchemy.orm import Session
 
 from app.states.CreateGroup import CreateGroup 
-from app.utils.keyboards import get_start_keyboard
+from app.utils.keyboards import get_add_homework_keyboard
 from db.models.group import Group
 from db.models.user import User
 
@@ -28,7 +28,7 @@ async def start(message: types.Message):
             s.add(new_user)
             s.commit()
 
-    await message.answer(START_TEXT, reply_markup=get_start_keyboard())
+    await message.answer(START_TEXT)
     
 
 async def create_group(message: types.Message, state: FSMContext):
@@ -71,6 +71,10 @@ async def generate_invite_link(message: types.Message):
     await message.answer(f'Пригласительная ссылка в вашу группу: {link}')
 
 
+async def add_homework(message: types.Message):
+    await message.answer('Выберите дату', reply_markup=get_add_homework_keyboard())
+
+
 async def help(message: types.Message):
     await message.answer(HELP_TEXT)
 
@@ -95,8 +99,9 @@ def register_common_handlers(dp: Dispatcher):
     dp.register_message_handler(create_group, commands='create_group', state='*')
     dp.register_message_handler(enter_title, state=CreateGroup.enter_title)
     dp.register_message_handler(generate_invite_link, commands='invite', state='*')
+    dp.register_message_handler(add_homework, commands='add', state='*')
     dp.register_message_handler(help, commands='help', state='*')
-    dp.register_message_handler(cmd_cancel, commands='cancel', state='*')
+    dp.register_message_handler(cmd_cancel, commands='cancel', state='*')    
 
     # !
     dp.register_message_handler(clean, commands='clean', state='*')
