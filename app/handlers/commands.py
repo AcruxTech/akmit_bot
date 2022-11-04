@@ -9,8 +9,8 @@ from app.utils.keyboards import get_start_keyboard
 from db.models.group import Group
 from db.models.user import User
 
-from common import worker, engine
-from constants import START_TEXT, HELP_TEXT
+from common.variables import worker, engine
+from common.constants import START_TEXT, HELP_TEXT
 
 
 async def start(message: types.Message):
@@ -20,7 +20,11 @@ async def start(message: types.Message):
     with Session(engine) as s:
         me = s.query(User).filter_by(uuid=message.from_user.id).first()
         if me is None:
-            new_user = User(uuid=message.from_user.id, name = message.from_user.first_name, group_id=group_id)
+            new_user = User(
+                uuid=message.from_user.id, 
+                name = message.from_user.first_name, 
+                group_id=group_id
+            )
             s.add(new_user)
             s.commit()
 
@@ -48,7 +52,8 @@ async def enter_title(message: types.Message, state: FSMContext):
     with Session(engine) as s:
         created_group: Group = s.query(Group).filter_by(uuid=uuid).first()
         s.query(User).filter(User.uuid == message.from_user.id).update(
-            {'group_id': created_group.id}, synchronize_session='fetch'
+            {'group_id': created_group.id}, 
+            synchronize_session='fetch'
         )
         s.commit()
 

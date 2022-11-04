@@ -8,6 +8,7 @@ class Lesson(Base):
     __tablename__ = 'lessons'
     
     id = Column(BigInteger(), primary_key=True)
-    name = Column(Text())
-    pavilion = Column(Text())
-    day = Column(BigInteger, ForeignKey('days.id'))
+    title = Column(Text())
+    homework = Column(Text())
+    date = Column(Text())                       # dd.mm.yy
+    group_id = Column(BigInteger(), ForeignKey('groups.id'))

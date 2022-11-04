@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.types import BotCommand
 
-from common import worker, logger, config
+from common.variables import worker, logger, config
 from app.handlers.commands import register_common_handlers
 from app.handlers.callbacks import register_callback_handlers
 

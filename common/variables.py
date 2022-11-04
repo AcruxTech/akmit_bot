@@ -3,8 +3,6 @@ import logging
 from db.worker import Worker
 from app.config.config import load_config 
 
-from sqlalchemy.orm import Session
-
 
 logger = logging.getLogger(__name__)
 config = load_config()
