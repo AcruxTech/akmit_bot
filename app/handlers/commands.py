@@ -5,6 +5,7 @@ from aiogram.utils.deep_linking import get_start_link, decode_payload
 from sqlalchemy.orm import Session
 
 from app.states.CreateGroup import CreateGroup 
+from app.states.AddHomework import AddHomework 
 from app.utils.keyboards import get_add_homework_keyboard
 from db.models.group import Group
 from db.models.user import User
@@ -41,7 +42,7 @@ async def create_group(message: types.Message, state: FSMContext):
         await state.set_state(CreateGroup.enter_title.state)
 
 
-async def enter_title(message: types.Message, state: FSMContext):
+async def enter_title_group(message: types.Message, state: FSMContext):
     uuid = str(uuid4())
 
     with Session(engine) as s:
@@ -75,6 +76,19 @@ async def add_homework(message: types.Message):
     await message.answer('Выберите дату', reply_markup=get_add_homework_keyboard())
 
 
+async def enter_title_homework(message: types.Message, state: FSMContext):
+    await state.update_data(title=message.text)
+    await message.answer('Введите текст дз')
+    await state.set_state(AddHomework.enter_homework)
+
+
+async def enter_homework(message: types.Message, state: FSMContext):
+    await state.update_data(hw=message.text)
+    data = await state.get_data()
+    await message.answer(data)
+    await state.finish()
+
+
 async def help(message: types.Message):
     await message.answer(HELP_TEXT)
 
@@ -97,9 +111,11 @@ async def unknown(message: types.Message):
 def register_common_handlers(dp: Dispatcher):
     dp.register_message_handler(start, commands='start', state='*')
     dp.register_message_handler(create_group, commands='create_group', state='*')
-    dp.register_message_handler(enter_title, state=CreateGroup.enter_title)
+    dp.register_message_handler(enter_title_group, state=CreateGroup.enter_title)
     dp.register_message_handler(generate_invite_link, commands='invite', state='*')
     dp.register_message_handler(add_homework, commands='add', state='*')
+    dp.register_message_handler(enter_title_homework, state=AddHomework.enter_title)
+    dp.register_message_handler(enter_homework, state=AddHomework.enter_homework)
     dp.register_message_handler(help, commands='help', state='*')
     dp.register_message_handler(cmd_cancel, commands='cancel', state='*')    
 
