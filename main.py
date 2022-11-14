@@ -2,6 +2,7 @@ import os
 import asyncio
 import logging
 
+from locale import setlocale, LC_TIME
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.types import BotCommand
@@ -24,6 +25,8 @@ async def set_commands(bot: Bot):
 
 
 async def main():
+    setlocale(LC_TIME, 'ru')
+
     # Удаляем старые логи, если они есть
     if(os.path.isfile('bot.log')):
         os.remove('bot.log')

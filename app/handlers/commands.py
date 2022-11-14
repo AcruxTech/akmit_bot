@@ -11,7 +11,7 @@ from db.models.group import Group
 from db.models.user import User
 
 from common.variables import worker, engine
-from common.constants import START_TEXT, HELP_TEXT
+from common.constants import START_TEXT, HELP_TEXT, NOT_IN_GROUP_TEXT
 
 
 async def start(message: types.Message):
@@ -66,13 +66,18 @@ async def generate_invite_link(message: types.Message):
     with Session(engine) as s:
         me: User = s.query(User).filter_by(uuid=message.from_user.id).first()
         if me.group_id is None:
-            await message.answer('Вы не состоите в группе! Воспользуйтесь командой /create_group, чтобы создать свою, или поппросит пригласитльную ссылку у своего товарища')
+            await message.answer(NOT_IN_GROUP_TEXT)
             return
         link = await get_start_link(str(me.group_id), encode=True)
     await message.answer(f'Пригласительная ссылка в вашу группу: {link}')
 
 
 async def add_homework(message: types.Message):
+    with Session(engine) as s:
+        me: User = s.query(User).filter_by(uuid=message.from_user.id).first()
+        if me.group_id is None:
+            await message.answer(NOT_IN_GROUP_TEXT)
+            return
     await message.answer('Выберите дату', reply_markup=get_add_homework_keyboard())
 
 
@@ -83,9 +88,11 @@ async def enter_title_homework(message: types.Message, state: FSMContext):
 
 
 async def enter_homework(message: types.Message, state: FSMContext):
-    await state.update_data(hw=message.text)
     data = await state.get_data()
-    await message.answer(data)
+
+    with Session(engine) as s:
+        me: User = s.query(User).filter_by(uuid=message.from_user.id).first()
+        group: Group = s.query(Group).filter_by(id=me.group_id).first()
     await state.finish()
 
 
