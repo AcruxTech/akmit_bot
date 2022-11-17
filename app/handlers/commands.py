@@ -9,6 +9,8 @@ from app.states.AddHomework import AddHomework
 from app.utils.keyboards import get_add_homework_keyboard
 from db.models.group import Group
 from db.models.user import User
+from db.models.lesson import Lesson
+
 
 from common.variables import worker, engine
 from common.constants import START_TEXT, HELP_TEXT, NOT_IN_GROUP_TEXT
@@ -92,7 +94,21 @@ async def enter_homework(message: types.Message, state: FSMContext):
 
     with Session(engine) as s:
         me: User = s.query(User).filter_by(uuid=message.from_user.id).first()
-        group: Group = s.query(Group).filter_by(id=me.group_id).first()
+        # group: Group = s.query(Group).filter_by(id=me.group_id).first()
+        lesson = Lesson(
+            title = data['title'],
+            homework = message.text,
+            date = data['date'],                      
+            group_id = me.group_id
+        )
+        s.add(lesson)
+        s.commit()
+        await message.answer('дз добавлено')
+
+    with Session(engine) as s:
+        l: Lesson = s.query(Lesson).filter_by(date=data['date']).all()
+        print(l.__dict__)
+
     await state.finish()
 
 
