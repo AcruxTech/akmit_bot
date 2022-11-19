@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.states.CreateGroup import CreateGroup 
 from app.states.AddHomework import AddHomework 
-from app.utils.keyboards import get_add_homework_keyboard
+from app.utils.keyboards import get_days_keyboard
 from db.models.group import Group
 from db.models.user import User
 from db.models.lesson import Lesson
@@ -80,7 +80,7 @@ async def add_homework(message: types.Message):
         if me.group_id is None:
             await message.answer(NOT_IN_GROUP_TEXT)
             return
-    await message.answer('Выберите дату', reply_markup=get_add_homework_keyboard())
+    await message.answer('Выберите дату', reply_markup=get_days_keyboard('add_homework_'))
 
 
 async def enter_title_homework(message: types.Message, state: FSMContext):
@@ -94,7 +94,6 @@ async def enter_homework(message: types.Message, state: FSMContext):
 
     with Session(engine) as s:
         me: User = s.query(User).filter_by(uuid=message.from_user.id).first()
-        # group: Group = s.query(Group).filter_by(id=me.group_id).first()
         lesson = Lesson(
             title = data['title'],
             homework = message.text,
@@ -105,11 +104,11 @@ async def enter_homework(message: types.Message, state: FSMContext):
         s.commit()
         await message.answer('дз добавлено')
 
-    with Session(engine) as s:
-        l: Lesson = s.query(Lesson).filter_by(date=data['date']).all()
-        print(l.__dict__)
-
     await state.finish()
+
+
+async def get_homework(message: types.Message):
+    pass
 
 
 async def help(message: types.Message):
@@ -139,6 +138,7 @@ def register_common_handlers(dp: Dispatcher):
     dp.register_message_handler(add_homework, commands='add', state='*')
     dp.register_message_handler(enter_title_homework, state=AddHomework.enter_title)
     dp.register_message_handler(enter_homework, state=AddHomework.enter_homework)
+    dp.register_message_handler(get_homework, commands='get_homework', state='*')
     dp.register_message_handler(help, commands='help', state='*')
     dp.register_message_handler(cmd_cancel, commands='cancel', state='*')    
 
