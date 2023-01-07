@@ -12,3 +12,15 @@ def get_days_keyboard(callback: str) -> types.InlineKeyboardMarkup:
             callback_data=callback + str_today)
         )
     return types.InlineKeyboardMarkup().add(*buttons)
+
+
+def get_group_keyboard() -> types.InlineKeyboardMarkup:
+    buttons = [
+        types.InlineKeyboardButton('Изменить название', callback_data='group_change_title'),
+        types.InlineKeyboardButton('Показать участников', callback_data='group_show_members'),
+        types.InlineKeyboardButton('Выйти из группы', callback_data='group_leave')
+    ]
+    keyboard = types.InlineKeyboardMarkup()
+    for button in buttons:
+        keyboard.row(button)
+    return keyboard

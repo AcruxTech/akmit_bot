@@ -1,5 +1,6 @@
 from app.config.config import load_config
 
 
-def some_func(arg: int) -> None:
-    return arg 
+def get_group_info(id: int) -> None:
+    return
+

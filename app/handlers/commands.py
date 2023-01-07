@@ -4,13 +4,13 @@ from aiogram.dispatcher import FSMContext
 from aiogram.utils.deep_linking import get_start_link, decode_payload
 from sqlalchemy.orm import Session
 
-from app.states.CreateGroup import CreateGroup 
+from app.states.CreateGroup import CreateGroup
+from app.states.RenameGroup import RenameGroup 
 from app.states.AddHomework import AddHomework 
-from app.utils.keyboards import get_days_keyboard
+from app.utils.keyboards import get_days_keyboard, get_group_keyboard
 from db.models.group import Group
 from db.models.user import User
 from db.models.lesson import Lesson
-
 
 from common.variables import worker, engine
 from common.constants import START_TEXT, HELP_TEXT, NOT_IN_GROUP_TEXT
@@ -21,7 +21,7 @@ async def start(message: types.Message):
     group_id = int(payload) if payload != '' else None
 
     with Session(engine) as s:
-        me = s.query(User).filter_by(uuid=message.from_user.id).first()
+        me: User = s.query(User).filter_by(uuid=message.from_user.id).first()
         if me is None:
             new_user = User(
                 uuid=message.from_user.id, 
@@ -32,16 +32,38 @@ async def start(message: types.Message):
             s.commit()
 
     await message.answer(START_TEXT)
+
+
+async def me(message: types.Message):
+    group = ''
+
+    with Session(engine) as s:
+        me: User = s.query(User).filter_by(uuid=message.from_user.id).first()
+        if me.group_id is None:
+            group = 'вне группы'   
+        else: 
+            group = s.query(Group).filter_by(id=me.group_id).first().title
+        
+    await message.answer(
+        f'<i>Имя</i>: {me.name}\n<i>Название группы</i>: {group}',
+        parse_mode='HTML'
+    )
     
 
-async def create_group(message: types.Message, state: FSMContext):
+async def group(message: types.Message, state: FSMContext):
     with Session(engine) as s:
         me: User = s.query(User).filter_by(uuid=message.from_user.id).first()
         
-    if me.group_id is not None:
-        await message.answer('Вы уже состоите в группе!')
-        return
-    await message.answer('Введите название для вашей группы (потом можно изменить)')
+        if me.group_id is not None:
+            group: Group = s.query(Group).filter_by(id=me.group_id).first()
+            await message.answer(
+                f'<i>Название</i>: {group.title}',
+                parse_mode='HTML',
+                reply_markup=get_group_keyboard()
+            )
+            return
+        
+    await message.answer('Вы не состоите в группе!\nВведите название для создания (потом можно изменить)')
     await state.set_state(CreateGroup.enter_title.state)
 
 
@@ -64,6 +86,18 @@ async def enter_title_group(message: types.Message, state: FSMContext):
 
     await message.answer('Группа добавлена')
     await state.finish()
+
+
+async def rename_group(message: types.Message, state: FSMContext):
+    with Session(engine) as s:
+        me: User = s.query(User).filter_by(uuid=message.from_user.id).first()
+        s.query(Group).filter(Group.id == me.group_id).update(
+            {'title': message.text}, 
+            synchronize_session='fetch'
+        )
+        s.commit()
+
+    await message.answer('Группа успешно переименована')
 
 
 async def generate_invite_link(message: types.Message):
@@ -137,8 +171,10 @@ async def unknown(message: types.Message):
 
 def register_common_handlers(dp: Dispatcher):
     dp.register_message_handler(start, commands='start', state='*')
-    dp.register_message_handler(create_group, commands='create_group', state='*')
+    dp.register_message_handler(me, commands='me', state='*')
+    dp.register_message_handler(group, commands='group', state='*')
     dp.register_message_handler(enter_title_group, state=CreateGroup.enter_title)
+    dp.register_message_handler(rename_group, state=RenameGroup.enter_title)
     dp.register_message_handler(generate_invite_link, commands='invite', state='*')
     dp.register_message_handler(add_homework, commands='add', state='*')
     dp.register_message_handler(enter_title_homework, state=AddHomework.enter_title)
