@@ -37,16 +37,18 @@ async def start(message: types.Message):
 async def create_group(message: types.Message, state: FSMContext):
     with Session(engine) as s:
         me: User = s.query(User).filter_by(uuid=message.from_user.id).first()
-        if me.group_id is not None:
-            await message.answer('Вы уже состоите в группе!')
-            return
-        await message.answer('Введите название для вашей группы (потом можно изменить)')
-        await state.set_state(CreateGroup.enter_title.state)
+        
+    if me.group_id is not None:
+        await message.answer('Вы уже состоите в группе!')
+        return
+    await message.answer('Введите название для вашей группы (потом можно изменить)')
+    await state.set_state(CreateGroup.enter_title.state)
 
 
 async def enter_title_group(message: types.Message, state: FSMContext):
     uuid = str(uuid4())
 
+    # union into one session
     with Session(engine) as s:
         group = Group(uuid=uuid, title=message.text)
         s.add(group)
@@ -67,22 +69,26 @@ async def enter_title_group(message: types.Message, state: FSMContext):
 async def generate_invite_link(message: types.Message):
     with Session(engine) as s:
         me: User = s.query(User).filter_by(uuid=message.from_user.id).first()
-        if me.group_id is None:
-            await message.answer(NOT_IN_GROUP_TEXT)
-            return
-        link = await get_start_link(str(me.group_id), encode=True)
+
+    if me.group_id is None:
+        await message.answer(NOT_IN_GROUP_TEXT)
+        return
+
+    link = await get_start_link(str(me.group_id), encode=True)
     await message.answer(f'Пригласительная ссылка в вашу группу: {link}')
 
 
 async def add_homework(message: types.Message):
     with Session(engine) as s:
         me: User = s.query(User).filter_by(uuid=message.from_user.id).first()
-        if me.group_id is None:
-            await message.answer(NOT_IN_GROUP_TEXT)
-            return
+
+    if me.group_id is None:
+        await message.answer(NOT_IN_GROUP_TEXT)
+        return
     await message.answer('Выберите дату', reply_markup=get_days_keyboard('add_homework_'))
 
 
+# add keyboard with suggestions 
 async def enter_title_homework(message: types.Message, state: FSMContext):
     await state.update_data(title=message.text)
     await message.answer('Введите текст дз')
@@ -102,13 +108,13 @@ async def enter_homework(message: types.Message, state: FSMContext):
         )
         s.add(lesson)
         s.commit()
-        await message.answer('дз добавлено')
 
+    await message.answer('дз добавлено')
     await state.finish()
 
 
 async def get_homework(message: types.Message):
-    pass
+    await message.answer('выберите день', reply_markup=get_days_keyboard('get_homework_'))
 
 
 async def help(message: types.Message):
@@ -119,8 +125,7 @@ async def cmd_cancel(message: types.Message, state: FSMContext):
     await message.answer('Команда отменена')
     await state.finish()
 
-
-# !
+# remove
 async def clean(message: types.Message):
     worker.drop_all()
     await message.answer('db was cleaned')
