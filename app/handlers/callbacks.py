@@ -34,6 +34,7 @@ async def call_group_show_members(call: types.CallbackQuery, state: FSMContext):
 
 async def call_group_leave(call: types.CallbackQuery, state: FSMContext):
     with Session(engine) as s:
+        # refactor
         s.query(User).filter(User.uuid == call.from_user.id).update(
             {'group_id': None}, 
             synchronize_session='fetch'
@@ -45,9 +46,9 @@ async def call_group_leave(call: types.CallbackQuery, state: FSMContext):
 
 
 async def call_add_homework(call: types.CallbackQuery, state: FSMContext):
+    await call.message.answer('Введите название предмета')
     await state.update_data(date=call.data.split('_')[2])
     await state.set_state(AddHomework.enter_title)
-    await call.message.answer('Введите название предмета')
     await call.answer()
 
 
@@ -59,6 +60,7 @@ async def call_get_homework(call: types.CallbackQuery):
             date=call.data.split('_')[2]
         ).all()
 
+    # refactor
     text = ''
     if not len(lessons):
         text = NO_HW_TEXT
@@ -79,9 +81,9 @@ async def call_cancel(call: types.CallbackQuery, state: FSMContext):
 
 
 def register_callback_handlers(dp: Dispatcher):
+    dp.register_callback_query_handler(call_cancel, text='cancel', state='*')
     dp.register_callback_query_handler(call_group_change_title, Text('group_change_title'), state='*')
     dp.register_callback_query_handler(call_group_show_members, Text('group_show_members'), state='*')
     dp.register_callback_query_handler(call_group_leave, Text('group_leave'), state='*')
     dp.register_callback_query_handler(call_add_homework, Text(startswith='add_homework'), state='*')
     dp.register_callback_query_handler(call_get_homework, Text(startswith='get_homework'), state='*')
-    dp.register_callback_query_handler(call_cancel, text='cancel', state='*')

@@ -15,9 +15,11 @@ from app.handlers.callbacks import register_callback_handlers
 async def set_commands(bot: Bot):
     commands = [
         BotCommand(command='/start', description='Начать работу'),
-        BotCommand(command='/create_group', description='Создать группу'),
+        BotCommand(command='/me', description='Профиль'),
+        BotCommand(command='/group', description='Данные о группе'),
         BotCommand(command='/invite', description='Пригласить новых участников'),
-        BotCommand(command='/add', description='Добавить задание'),
+        BotCommand(command='/add', description='Добавить д/з'),
+        BotCommand(command='/get', description='Посмотреть д/з'),
         BotCommand(command='/help', description='Доступные команды'),
         BotCommand(command='/cancel', description='Отменить команду')
     ]
