@@ -37,8 +37,24 @@ async def start(message: types.Message):
             
             s.add(new_user)
             s.commit()
+            return
 
+    if payload == '':
+        return
 
+    with Session(engine) as s:
+        group: Group = s.query(Group).filter_by(uuid=payload).first()
+        if group == None:
+            return
+        await message.answer(f'Ура, теперь вы в группе <i>{group.title}</i>', parse_mode='HTML')
+        s.query(User).filter(User.uuid == message.from_user.id).update(
+            {'group_id': group.id}, 
+            synchronize_session='fetch'
+        )
+        s.commit()
+        
+
+    
 async def me(message: types.Message):
     with Session(engine) as s:
         me: User = s.query(User).filter_by(uuid=message.from_user.id).first()
@@ -159,6 +175,7 @@ async def get_homework(message: types.Message):
 
     if me.group_id is None:
         await message.answer(NOT_IN_GROUP_TEXT)
+        return
 
     await message.answer('Выберите день', reply_markup=get_days_keyboard('get_homework_'))
 
