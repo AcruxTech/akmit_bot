@@ -45,20 +45,20 @@ async def start(message: types.Message):
             synchronize_session='fetch'
         )
         s.commit()
-
-    await message.answer(f'Ура, теперь вы в группе <i>{group.title}</i>', parse_mode='HTML')
+        await message.answer(f'Ура, теперь вы в группе <i>{group.title}</i>', parse_mode='HTML')
     
     
 async def me(message: types.Message):
     with Session(engine) as s:
         me: User = s.query(User).filter_by(uuid=message.from_user.id).first()
-        group_name = s.query(Group).filter_by(id=me.group_id).first().title
+        group: Group = s.query(Group).filter_by(id=me.group_id).first() 
+        group_name = group.title if group != None else 'вне группы'
         
     await message.answer(
         # refactor
         "\n".join((
             f'<i>Имя</i>: {me.name}',
-            '<i>Название группы</i>:' + group_name if group_name != None else 'вне группы'
+            f'<i>Название группы</i>: {group_name}',
             f'<i>Ссылка</i>: {await get_invite_link(me.uuid)}' if me.group_id != None else ''
         )),
         parse_mode='HTML'
@@ -75,7 +75,7 @@ async def group(message: types.Message, state: FSMContext):
             return
             
         group: Group = s.query(Group).filter_by(id=me.group_id).first()
-        
+
     await message.answer(
         f'<i>Название</i>: {group.title}',
         parse_mode='HTML',
@@ -116,6 +116,7 @@ async def rename_group(message: types.Message, state: FSMContext):
         s.commit()
 
     await message.answer('Группа успешно переименована')
+    await state.finish()
 
 
 async def generate_invite_link(message: types.Message):
