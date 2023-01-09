@@ -17,10 +17,10 @@ from common.variables import engine
 from common.constants import START_TEXT, HELP_TEXT, NOT_IN_GROUP_TEXT
 
 
+# refactor
 async def start(message: types.Message):
     await message.answer(START_TEXT)
 
-    payload = decode_payload(message.get_args())
     with Session(engine) as s:
         me: User = s.query(User).filter_by(uuid=message.from_user.id).first()
         if me is None:
@@ -29,16 +29,10 @@ async def start(message: types.Message):
                 name = message.from_user.first_name, 
                 group_id=None
             )
-
-            group: Group = s.query(Group).filter_by(uuid=payload).first()
-            if group != None:
-                new_user.group_id = group.id
-                await message.answer(f'Ура, теперь вы в группе <i>{group.title}</i>', parse_mode='HTML')
-            
             s.add(new_user)
             s.commit()
-            return
 
+    payload = decode_payload(message.get_args())
     if payload == '':
         return
 
@@ -46,29 +40,25 @@ async def start(message: types.Message):
         group: Group = s.query(Group).filter_by(uuid=payload).first()
         if group == None:
             return
-        await message.answer(f'Ура, теперь вы в группе <i>{group.title}</i>', parse_mode='HTML')
         s.query(User).filter(User.uuid == message.from_user.id).update(
             {'group_id': group.id}, 
             synchronize_session='fetch'
         )
         s.commit()
-        
 
+    await message.answer(f'Ура, теперь вы в группе <i>{group.title}</i>', parse_mode='HTML')
+    
     
 async def me(message: types.Message):
     with Session(engine) as s:
         me: User = s.query(User).filter_by(uuid=message.from_user.id).first()
-        # refactor
-        if me.group_id is None:
-            group_name = 'вне группы'   
-        else:
-            group_name = s.query(Group).filter_by(id=me.group_id).first().title
+        group_name = s.query(Group).filter_by(id=me.group_id).first().title
         
     await message.answer(
         # refactor
         "\n".join((
             f'<i>Имя</i>: {me.name}',
-            f'<i>Название группы</i>: {group_name}',
+            '<i>Название группы</i>:' + group_name if group_name != None else 'вне группы'
             f'<i>Ссылка</i>: {await get_invite_link(me.uuid)}' if me.group_id != None else ''
         )),
         parse_mode='HTML'
@@ -79,12 +69,13 @@ async def group(message: types.Message, state: FSMContext):
     with Session(engine) as s:
         me: User = s.query(User).filter_by(uuid=message.from_user.id).first()
         
-    if me.group_id is None:
-        await message.answer('Вы не состоите в группе!\nВведите название для создания (потом можно изменить) или отмените создание /cancel')
-        await state.set_state(CreateGroup.enter_title.state)
-        return
+        if me.group_id is None:
+            await message.answer('Вы не состоите в группе!\nВведите название для создания (потом можно изменить) или отмените создание /cancel')
+            await state.set_state(CreateGroup.enter_title.state)
+            return
+            
+        group: Group = s.query(Group).filter_by(id=me.group_id).first()
         
-    group: Group = s.query(Group).filter_by(id=me.group_id).first()
     await message.answer(
         f'<i>Название</i>: {group.title}',
         parse_mode='HTML',
