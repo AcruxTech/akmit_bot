@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os
 import asyncio
 import logging
@@ -30,12 +32,12 @@ async def main():
     setlocale(LC_TIME, 'ru')
 
     # Удаляем старые логи, если они есть
-    if(os.path.isfile('bot.log')):
-        os.remove('bot.log')
+    if(os.path.isfile('akmit_bot.log')):
+        os.remove('akmit_bot.log')
 
     # Настройка логирования в stdout
     logging.basicConfig(
-        filename='bot.log',
+        filename='akmit_bot.log',
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
         encoding='utf-8'
